@@ -12,6 +12,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'leave-service-2024SL70044'
 	IMAGE_NAME = 'leave-service-2024sl70044'
 	STAGING_CONTAINER = 'leave-service-staging-2024sl70044'
+	PRODUCTION_CONTAINER = 'leave-service-production-2024sl70044'
     }
 
     stages {
@@ -94,5 +95,47 @@ pipeline {
         '''
     }
 }
+stage('Approval') {
+    steps {
+        timeout(time: 15, unit: 'MINUTES') {
+            input message: 'Staging verified. Approve production deployment?',
+                  ok: 'Deploy to Production'
+        }
+}
+}
+stage('Deploy to Production') {
+    steps {
+        sh '''
+            docker rm -f "$PRODUCTION_CONTAINER" \
+              2>/dev/null || true
+
+            docker run -d \
+              --name "$PRODUCTION_CONTAINER" \
+              -p 8086:8080 \
+              -e APP_ENV=production \
+              "$IMAGE_NAME:$BUILD_NUMBER"
+
+            docker ps
+        '''
     }
 }
+stage('Verify Production') {
+    steps {
+        sh '''
+            response=$(curl -fsS \
+              --retry 10 \
+              --retry-connrefused \
+              --retry-delay 2 \
+              http://localhost:8086)
+
+            printf '%s\\n' "$response"
+
+            printf '%s\\n' "$response" | \
+              grep -F "Environment: production"
+        '''
+    }
+}
+    }
+}
+
+
