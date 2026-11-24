@@ -1,4 +1,3 @@
-
 package com.bits.leave;
 
 import com.sun.net.httpserver.HttpServer;
@@ -12,11 +11,17 @@ public class LeaveApplication {
         String environment = System.getenv()
                 .getOrDefault("APP_ENV", "local");
 
-	int port = Integer.parseInt(
-    		System.getenv().getOrDefault("PORT", "8080"));
+        int port = Integer.parseInt(
+                System.getenv().getOrDefault("PORT", "8080"));
 
-	HttpServer server = HttpServer.create(
-    		new InetSocketAddress("0.0.0.0", port), 0);
+        startServer(port, environment);
+    }
+
+    public static HttpServer startServer(int port, String environment)
+            throws Exception {
+
+        HttpServer server = HttpServer.create(
+                new InetSocketAddress("0.0.0.0", port), 0);
 
         server.createContext("/", exchange -> {
 
@@ -41,9 +46,12 @@ public class LeaveApplication {
         server.start();
 
         System.out.println(
-                "Employee Leave Service started on port"+port);
+                "Employee Leave Service started on port "
+                + server.getAddress().getPort());
 
         System.out.println(
                 "Environment: " + environment);
+
+        return server;
     }
 }
