@@ -42,8 +42,8 @@ pipeline {
                     sh '''
                         set +x
                         mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar \
-                          -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-                          -Dsonar.host.url="$SONAR_HOST_URL" \
+                          -Dsonar.projectKey="leave-service-2024SL70044" \
+                          -Dsonar.host.url="http://localhost:9000" \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
                           -Dsonar.qualitygate.wait=true
                     '''
