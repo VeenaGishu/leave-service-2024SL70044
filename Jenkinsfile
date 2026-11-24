@@ -10,6 +10,8 @@ pipeline {
     environment {
         SONAR_HOST_URL = 'http://localhost:9000'
         SONAR_PROJECT_KEY = 'leave-service-2024SL70044'
+	IMAGE_NAME = 'leave-service-2024sl70044'
+	STAGING_CONTAINER = 'leave-service-staging-2024sl70044'
     }
 
     stages {
@@ -50,5 +52,47 @@ pipeline {
                 }
             }
         }
+	stage('Build Docker Image') {
+    steps {
+        sh '''
+            docker build \
+              -t "$IMAGE_NAME:$BUILD_NUMBER" .
+
+            docker images "$IMAGE_NAME"
+        '''
+    }
+}
+	stage('Deploy to Staging') {
+    steps {
+        sh '''
+            docker rm -f "$STAGING_CONTAINER" \
+              2>/dev/null || true
+
+            docker run -d \
+              --name "$STAGING_CONTAINER" \
+              -p 8085:8080 \
+              -e APP_ENV=staging \
+              "$IMAGE_NAME:$BUILD_NUMBER"
+
+            docker ps
+        '''
+    }
+}
+	stage('Verify Staging') {
+    steps {
+        sh '''
+            response=$(curl -fsS \
+              --retry 10 \
+              --retry-connrefused \
+              --retry-delay 2 \
+              http://localhost:8085)
+
+            printf '%s\\n' "$response"
+
+            printf '%s\\n' "$response" | \
+              grep -F "Environment: staging"
+        '''
+    }
+}
     }
 }
