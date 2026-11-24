@@ -41,7 +41,7 @@ pipeline {
                 ]) {
                     sh '''
                         set +x
-                        mvn sonar:sonar \
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar \
                           -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
                           -Dsonar.host.url="$SONAR_HOST_URL" \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
