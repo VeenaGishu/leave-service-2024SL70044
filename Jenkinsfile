@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = 'http://localhost:9000'
-        SONAR_PROJECT_KEY = 'leave-service-BITSID'
+        SONAR_PROJECT_KEY = 'leave-service-2024SL70044'
     }
 
     stages {
