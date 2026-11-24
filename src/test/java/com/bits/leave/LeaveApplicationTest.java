@@ -57,4 +57,59 @@ public class LeaveApplicationTest {
             server.stop(0);
         }
     }
+@Test
+public void testStartupConfiguration() throws Exception {
+
+    HttpServer server = LeaveApplication.startFromEnvironment(
+            java.util.Map.of(
+                    "PORT", "0",
+                    "APP_ENV", "staging"));
+
+    try {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:"
+                        + server.getAddress().getPort()))
+                .GET()
+                .build();
+
+        HttpResponse<String> response =
+                HttpClient.newHttpClient().send(
+                        request,
+                        HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+        assertTrue(response.body().contains(
+                "Environment: staging"));
+
+    } finally {
+        server.stop(0);
+    }
+}
+
+@Test
+public void testDefaultEnvironment() throws Exception {
+
+    HttpServer server = LeaveApplication.startFromEnvironment(
+            java.util.Map.of("PORT", "0"));
+
+    try {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:"
+                        + server.getAddress().getPort()))
+                .GET()
+                .build();
+
+        HttpResponse<String> response =
+                HttpClient.newHttpClient().send(
+                        request,
+                        HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+        assertTrue(response.body().contains(
+                "Environment: local"));
+
+    } finally {
+        server.stop(0);
+    }
+}
 }

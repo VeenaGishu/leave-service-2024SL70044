@@ -7,15 +7,19 @@ import java.nio.charset.StandardCharsets;
 public class LeaveApplication {
 
     public static void main(String[] args) throws Exception {
+    startFromEnvironment(System.getenv());
+}
 
-        String environment = System.getenv()
-                .getOrDefault("APP_ENV", "local");
+public static HttpServer startFromEnvironment(
+        java.util.Map<String, String> env) throws Exception {
 
-        int port = Integer.parseInt(
-                System.getenv().getOrDefault("PORT", "8080"));
+    String environment = env.getOrDefault("APP_ENV", "local");
 
-        startServer(port, environment);
-    }
+    int port = Integer.parseInt(
+            env.getOrDefault("PORT", "8080"));
+
+    return startServer(port, environment);
+}
 
     public static HttpServer startServer(int port, String environment)
             throws Exception {
